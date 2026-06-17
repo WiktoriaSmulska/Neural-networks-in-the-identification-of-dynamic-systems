@@ -1,0 +1,673 @@
+1. wpływ długości segmentu czasowego
+
+Confusion matrix na zbiorze TEST:
+[[  36    0    0    0    0]
+ [   0 1350    0    0    0]
+ [   0    0 1350    0    0]
+ [   0    0    0 1269    0]
+ [   0    0    0    0 1350]]
+
+Raport klasyfikacji na zbiorze TEST:
+Klasa         Precision     Recall   F1-score    Support
+Ueda             1.0000     1.0000     1.0000         36
+Lorenz           1.0000     1.0000     1.0000       1350
+Rosler           1.0000     1.0000     1.0000       1350
+Halvorsen        1.0000     1.0000     1.0000       1269
+Rucklidge        1.0000     1.0000     1.0000       1350
+
+Accuracy test: 100.00%
+
+Podsumowanie:
+Model: CNN 1D
+Seq len: 200
+Stride: 100
+Filtry: 32
+Kernel size: 5
+Dropout: 0.2
+Epoki: 10
+Najlepsza walidacja: 100.00%
+Accuracy test: 100.00%
+Czas uczenia: 10.69 s
+
+
+#############################################################
+
+Confusion matrix na zbiorze TEST:
+[[  76    0    0    0    0]
+ [   0 2850    0    0    0]
+ [   0    0 2850    0    0]
+ [   0    0    0 2679    0]
+ [   0    0    0    0 2850]]
+
+Raport klasyfikacji na zbiorze TEST:
+Klasa         Precision     Recall   F1-score    Support
+Ueda             1.0000     1.0000     1.0000         76
+Lorenz           1.0000     1.0000     1.0000       2850
+Rosler           1.0000     1.0000     1.0000       2850
+Halvorsen        1.0000     1.0000     1.0000       2679
+Rucklidge        1.0000     1.0000     1.0000       2850
+
+Accuracy test: 100.00%
+
+Podsumowanie:
+Model: CNN 1D
+Seq len: 100
+Stride: 50
+Filtry: 32
+Kernel size: 5
+Dropout: 0.2
+Epoki: 10
+Najlepsza walidacja: 100.00%
+Accuracy test: 100.00%
+Czas uczenia: 18.48 s
+
+
+#################################################################
+
+
+Confusion matrix na zbiorze TEST:
+[[ 12   0   0   0   0]
+ [  0 450   0   0   0]
+ [  0   0 450   0   0]
+ [  0   0   0 423   0]
+ [  0   0   0   0 450]]
+
+Raport klasyfikacji na zbiorze TEST:
+Klasa         Precision     Recall   F1-score    Support
+Ueda             1.0000     1.0000     1.0000         12
+Lorenz           1.0000     1.0000     1.0000        450
+Rosler           1.0000     1.0000     1.0000        450
+Halvorsen        1.0000     1.0000     1.0000        423
+Rucklidge        1.0000     1.0000     1.0000        450
+
+Accuracy test: 100.00%
+
+Podsumowanie:
+Model: CNN 1D
+Seq len: 500
+Stride: 250
+Filtry: 32
+Kernel size: 5
+Dropout: 0.2
+Epoki: 10
+Najlepsza walidacja: 100.00%
+Accuracy test: 100.00%
+Czas uczenia: 5.95 s
+
+
+#############################################3
+
+Confusion matrix na zbiorze TEST:
+[[  0   0   0   0   8]
+ [  0 300   0   0   0]
+ [  0   0 300   0   0]
+ [  0   0   0 282   0]
+ [  0   0   0   0 300]]
+
+Raport klasyfikacji na zbiorze TEST:
+Klasa         Precision     Recall   F1-score    Support
+Ueda             0.0000     0.0000     0.0000          8
+Lorenz           1.0000     1.0000     1.0000        300
+Rosler           1.0000     1.0000     1.0000        300
+Halvorsen        1.0000     1.0000     1.0000        282
+Rucklidge        0.9740     1.0000     0.9868        300
+
+Accuracy test: 99.33%
+
+Podsumowanie:
+Model: CNN 1D
+Seq len: 500
+Stride: 500
+Filtry: 32
+Kernel size: 5
+Dropout: 0.2
+Epoki: 10
+Najlepsza walidacja: 99.49%
+Accuracy test: 99.33%
+Czas uczenia: 3.83 s
+
+
+##########################################################################3
+
+Confusion matrix na zbiorze TEST:
+[[  0   0   0   0   4]
+ [  0 150   0   0   0]
+ [  0   0 150   0   0]
+ [  0   0   0 141   0]
+ [  0   0   0   0 150]]
+
+Raport klasyfikacji na zbiorze TEST:
+Klasa         Precision     Recall   F1-score    Support
+Ueda             0.0000     0.0000     0.0000          4
+Lorenz           1.0000     1.0000     1.0000        150
+Rosler           1.0000     1.0000     1.0000        150
+Halvorsen        1.0000     1.0000     1.0000        141
+Rucklidge        0.9740     1.0000     0.9868        150
+
+Accuracy test: 99.33%
+
+Podsumowanie:
+Model: CNN 1D
+Seq len: 1000
+Stride: 1000
+Filtry: 32
+Kernel size: 5
+Dropout: 0.2
+Epoki: 10
+Najlepsza walidacja: 99.49%
+Accuracy test: 99.33%
+Czas uczenia: 3.40 s
+
+
+
+############################################################
+
+Jako konfigurację bazową wybrano wariant z długością segmentu seq_len=200 oraz krokiem stride=100, ponieważ zapewnia on dobry kompromis między ilością informacji zawartą w pojedynczym segmencie a liczbą dostępnych próbek treningowych. Segment długości 200 próbek jest wystarczająco długi, aby uchwycić charakterystyczne cechy przebiegu czasowego danego układu dynamicznego, a jednocześnie nie powoduje nadmiernego zmniejszenia liczby segmentów, co jest szczególnie istotne dla najmniej licznej klasy Ueda.
+
+Zastosowanie stride=100 oznacza 50% nakładania się kolejnych okien czasowych. Dzięki temu uzyskuje się większą liczbę próbek uczących bez całkowitego powielania tych samych fragmentów. Wariant ten pozwolił modelowi CNN poprawnie rozpoznać wszystkie klasy, w tym klasę Ueda, dla której przy dłuższych segmentach i większym kroku przesunięcia pojawiał się problem błędnej klasyfikacji.
+
+Dalsze eksperymenty wykonano względem tej konfiguracji bazowej, zmieniając pojedyncze parametry modelu, takie jak liczba filtrów, rozmiar kernela oraz dropout. Pozwala to ocenić wpływ każdego parametru na skuteczność klasyfikacji.
+
+
+2. wpływ liczby filtrów
+
+Confusion matrix na zbiorze TEST:
+[[   0    0    0    0   36]
+ [   0 1350    0    0    0]
+ [   0    0 1347    0    3]
+ [   0    0    0 1269    0]
+ [   0    0    0    0 1350]]
+
+Raport klasyfikacji na zbiorze TEST:
+Klasa         Precision     Recall   F1-score    Support
+Ueda             0.0000     0.0000     0.0000         36
+Lorenz           1.0000     1.0000     1.0000       1350
+Rosler           1.0000     0.9978     0.9989       1350
+Halvorsen        1.0000     1.0000     1.0000       1269
+Rucklidge        0.9719     1.0000     0.9858       1350
+
+Accuracy test: 99.27%
+
+Podsumowanie:
+Model: CNN 1D
+Seq len: 200
+Stride: 100
+Filtry: 8
+Kernel size: 5
+Dropout: 0.2
+Epoki: 10
+Najlepsza walidacja: 99.49%
+Accuracy test: 99.27%
+Czas uczenia: 7.14 s
+
+
+######################################################################################
+
+Confusion matrix na zbiorze TEST:
+[[  36    0    0    0    0]
+ [   0 1350    0    0    0]
+ [   0    0 1350    0    0]
+ [   0    0    0 1269    0]
+ [   0    0    0    0 1350]]
+
+Raport klasyfikacji na zbiorze TEST:
+Klasa         Precision     Recall   F1-score    Support
+Ueda             1.0000     1.0000     1.0000         36
+Lorenz           1.0000     1.0000     1.0000       1350
+Rosler           1.0000     1.0000     1.0000       1350
+Halvorsen        1.0000     1.0000     1.0000       1269
+Rucklidge        1.0000     1.0000     1.0000       1350
+
+Accuracy test: 100.00%
+
+Podsumowanie:
+Model: CNN 1D
+Seq len: 200
+Stride: 100
+Filtry: 16
+Kernel size: 5
+Dropout: 0.2
+Epoki: 10
+Najlepsza walidacja: 100.00%
+Accuracy test: 100.00%
+Czas uczenia: 8.37 s
+
+
+###############################################################################3
+
+Confusion matrix na zbiorze TEST:
+[[  36    0    0    0    0]
+ [   0 1350    0    0    0]
+ [   0    0 1350    0    0]
+ [   0    0    0 1269    0]
+ [   0    0    0    0 1350]]
+
+Raport klasyfikacji na zbiorze TEST:
+Klasa         Precision     Recall   F1-score    Support
+Ueda             1.0000     1.0000     1.0000         36
+Lorenz           1.0000     1.0000     1.0000       1350
+Rosler           1.0000     1.0000     1.0000       1350
+Halvorsen        1.0000     1.0000     1.0000       1269
+Rucklidge        1.0000     1.0000     1.0000       1350
+
+Accuracy test: 100.00%
+
+Podsumowanie:
+Model: CNN 1D
+Seq len: 200
+Stride: 100
+Filtry: 32
+Kernel size: 5
+Dropout: 0.2
+Epoki: 10
+Najlepsza walidacja: 100.00%
+Accuracy test: 100.00%
+Czas uczenia: 10.49 s
+
+
+#####################################################################################3
+
+Confusion matrix na zbiorze TEST:
+[[  36    0    0    0    0]
+ [   0 1350    0    0    0]
+ [   0    0 1350    0    0]
+ [   0    0    0 1269    0]
+ [   0    0    0    0 1350]]
+
+Raport klasyfikacji na zbiorze TEST:
+Klasa         Precision     Recall   F1-score    Support
+Ueda             1.0000     1.0000     1.0000         36
+Lorenz           1.0000     1.0000     1.0000       1350
+Rosler           1.0000     1.0000     1.0000       1350
+Halvorsen        1.0000     1.0000     1.0000       1269
+Rucklidge        1.0000     1.0000     1.0000       1350
+
+Accuracy test: 100.00%
+
+Podsumowanie:
+Model: CNN 1D
+Seq len: 200
+Stride: 100
+Filtry: 64
+Kernel size: 5
+Dropout: 0.2
+Epoki: 10
+Najlepsza walidacja: 100.00%
+Accuracy test: 100.00%
+Czas uczenia: 17.33 s
+
+###########################################################333
+
+W eksperymencie sprawdzono wpływ liczby filtrów konwolucyjnych na skuteczność modelu CNN 1D. Dla 8 filtrów model osiągnął wysoką dokładność ogólną równą 99.27%, jednak analiza metryk dla poszczególnych klas wykazała, że model nie rozpoznał żadnej próbki klasy Ueda. Wszystkie próbki tej klasy zostały błędnie przypisane do klasy Rucklidge. Oznacza to, że model o zbyt małej liczbie filtrów miał niewystarczającą pojemność do poprawnego uchwycenia cech najmniej licznej klasy.
+
+Zwiększenie liczby filtrów do 16 pozwoliło uzyskać 100% skuteczności dla wszystkich klas. Dalsze zwiększanie liczby filtrów do 32 i 64 nie poprawiło jakości klasyfikacji, natomiast wydłużyło czas uczenia. Na tej podstawie można stwierdzić, że liczba filtrów ma istotne znaczenie do pewnego momentu, po którym dalsze zwiększanie złożoności modelu nie przynosi zauważalnych korzyści.
+
+
+3. wpływ rozmiaru kernela
+
+Confusion matrix na zbiorze TEST:
+[[  35    0    1    0    0]
+ [   0 1350    0    0    0]
+ [   0    0 1350    0    0]
+ [   0    0    0 1269    0]
+ [   0    0    0    0 1350]]
+
+Raport klasyfikacji na zbiorze TEST:
+Klasa         Precision     Recall   F1-score    Support
+Ueda             1.0000     0.9722     0.9859         36
+Lorenz           1.0000     1.0000     1.0000       1350
+Rosler           0.9993     1.0000     0.9996       1350
+Halvorsen        1.0000     1.0000     1.0000       1269
+Rucklidge        1.0000     1.0000     1.0000       1350
+
+Accuracy test: 99.98%
+
+Podsumowanie:
+Model: CNN 1D
+Seq len: 200
+Stride: 100
+Filtry: 16
+Kernel size: 1
+Dropout: 0.2
+Epoki: 10
+Najlepsza walidacja: 99.98%
+Accuracy test: 99.98%
+Czas uczenia: 8.08 s
+
+
+################################################################################33
+
+Confusion matrix na zbiorze TEST:
+[[  36    0    0    0    0]
+ [   0 1350    0    0    0]
+ [   0    0 1350    0    0]
+ [   0    0    0 1269    0]
+ [   0    0    0    0 1350]]
+
+Raport klasyfikacji na zbiorze TEST:
+Klasa         Precision     Recall   F1-score    Support
+Ueda             1.0000     1.0000     1.0000         36
+Lorenz           1.0000     1.0000     1.0000       1350
+Rosler           1.0000     1.0000     1.0000       1350
+Halvorsen        1.0000     1.0000     1.0000       1269
+Rucklidge        1.0000     1.0000     1.0000       1350
+
+Accuracy test: 100.00%
+
+Podsumowanie:
+Model: CNN 1D
+Seq len: 200
+Stride: 100
+Filtry: 16
+Kernel size: 3
+Dropout: 0.2
+Epoki: 10
+Najlepsza walidacja: 100.00%
+Accuracy test: 100.00%
+Czas uczenia: 8.09 s
+
+
+
+
+#########################################################################33
+
+Confusion matrix na zbiorze TEST:
+[[  36    0    0    0    0]
+ [   0 1350    0    0    0]
+ [   0    0 1350    0    0]
+ [   0    0    0 1269    0]
+ [   0    0    0    0 1350]]
+
+Raport klasyfikacji na zbiorze TEST:
+Klasa         Precision     Recall   F1-score    Support
+Ueda             1.0000     1.0000     1.0000         36
+Lorenz           1.0000     1.0000     1.0000       1350
+Rosler           1.0000     1.0000     1.0000       1350
+Halvorsen        1.0000     1.0000     1.0000       1269
+Rucklidge        1.0000     1.0000     1.0000       1350
+
+Accuracy test: 100.00%
+
+Podsumowanie:
+Model: CNN 1D
+Seq len: 200
+Stride: 100
+Filtry: 16
+Kernel size: 5
+Dropout: 0.2
+Epoki: 10
+Najlepsza walidacja: 100.00%
+Accuracy test: 100.00%
+Czas uczenia: 8.50 s
+
+
+#######################################################################33
+
+
+Confusion matrix na zbiorze TEST:
+[[  36    0    0    0    0]
+ [   0 1350    0    0    0]
+ [   0    0 1350    0    0]
+ [   0    0    0 1269    0]
+ [   0    0    0    0 1350]]
+
+Raport klasyfikacji na zbiorze TEST:
+Klasa         Precision     Recall   F1-score    Support
+Ueda             1.0000     1.0000     1.0000         36
+Lorenz           1.0000     1.0000     1.0000       1350
+Rosler           1.0000     1.0000     1.0000       1350
+Halvorsen        1.0000     1.0000     1.0000       1269
+Rucklidge        1.0000     1.0000     1.0000       1350
+
+Accuracy test: 100.00%
+
+Podsumowanie:
+Model: CNN 1D
+Seq len: 200
+Stride: 100
+Filtry: 16
+Kernel size: 7
+Dropout: 0.2
+Epoki: 10
+Najlepsza walidacja: 100.00%
+Accuracy test: 100.00%
+Czas uczenia: 8.68 s
+
+W ramach eksperymentu sprawdzono wpływ rozmiaru kernela konwolucyjnego na skuteczność klasyfikacji. Dla kernel_size=1 model osiągnął bardzo wysoką dokładność 99.98%, jednak pojawił się jeden błąd klasyfikacji dla klasy Ueda, która została błędnie przypisana do klasy Rosler. Oznacza to, że analiza pojedynczych punktów czasowych nie zawsze wystarcza do pełnego rozróżnienia wszystkich układów dynamicznych.
+
+Zwiększenie rozmiaru kernela do 3 pozwoliło uzyskać 100% skuteczności klasyfikacji dla wszystkich klas. Dalsze zwiększanie kernela do 5 i 7 nie poprawiło wyników, natomiast nieznacznie zwiększyło czas uczenia. Na tej podstawie można stwierdzić, że kernel_size=3 stanowi najlepszy kompromis między skutecznością a czasem uczenia.
+
+
+###############################################################################3
+
+4. wpływ dropout
+Confusion matrix na zbiorze TEST:
+[[  35    0    0    1    0]
+ [   0 1350    0    0    0]
+ [   0    0 1350    0    0]
+ [   0    0    0 1269    0]
+ [   0    0    0    0 1350]]
+
+Raport klasyfikacji na zbiorze TEST:
+Klasa         Precision     Recall   F1-score    Support
+Ueda             1.0000     0.9722     0.9859         36
+Lorenz           1.0000     1.0000     1.0000       1350
+Rosler           1.0000     1.0000     1.0000       1350
+Halvorsen        0.9992     1.0000     0.9996       1269
+Rucklidge        1.0000     1.0000     1.0000       1350
+
+Accuracy test: 99.98%
+
+Podsumowanie:
+Model: CNN 1D
+Seq len: 200
+Stride: 100
+Filtry: 16
+Kernel size: 3
+Dropout: 0.0
+Epoki: 10
+Najlepsza walidacja: 100.00%
+Accuracy test: 99.98%
+Czas uczenia: 8.12 s
+
+
+###########################################################
+
+Confusion matrix na zbiorze TEST:
+[[  36    0    0    0    0]
+ [   0 1350    0    0    0]
+ [   0    0 1350    0    0]
+ [   0    0    0 1269    0]
+ [   0    0    0    0 1350]]
+
+Raport klasyfikacji na zbiorze TEST:
+Klasa         Precision     Recall   F1-score    Support
+Ueda             1.0000     1.0000     1.0000         36
+Lorenz           1.0000     1.0000     1.0000       1350
+Rosler           1.0000     1.0000     1.0000       1350
+Halvorsen        1.0000     1.0000     1.0000       1269
+Rucklidge        1.0000     1.0000     1.0000       1350
+
+Accuracy test: 100.00%
+
+Podsumowanie:
+Model: CNN 1D
+Seq len: 200
+Stride: 100
+Filtry: 16
+Kernel size: 3
+Dropout: 0.2
+Epoki: 10
+Najlepsza walidacja: 100.00%
+Accuracy test: 100.00%
+Czas uczenia: 8.09 s
+
+
+#########################################################################
+
+Confusion matrix na zbiorze TEST:
+[[   0    0    0    0   36]
+ [   0 1350    0    0    0]
+ [   0    0 1350    0    0]
+ [   0    0    0 1269    0]
+ [   0    0    0    0 1350]]
+
+Raport klasyfikacji na zbiorze TEST:
+Klasa         Precision     Recall   F1-score    Support
+Ueda             0.0000     0.0000     0.0000         36
+Lorenz           1.0000     1.0000     1.0000       1350
+Rosler           1.0000     1.0000     1.0000       1350
+Halvorsen        1.0000     1.0000     1.0000       1269
+Rucklidge        0.9740     1.0000     0.9868       1350
+
+Accuracy test: 99.33%
+
+Podsumowanie:
+Model: CNN 1D
+Seq len: 200
+Stride: 100
+Filtry: 16
+Kernel size: 3
+Dropout: 0.5
+Epoki: 10
+Najlepsza walidacja: 99.49%
+Accuracy test: 99.33%
+Czas uczenia: 8.19 s
+
+W eksperymencie sprawdzono wpływ wartości dropout na skuteczność klasyfikacji modelu CNN 1D. Dla braku dropout model osiągnął bardzo wysoką dokładność 99.98%, jednak pojawił się pojedynczy błąd klasyfikacji próbki Ueda jako Halvorsen. Zastosowanie dropout równego 0.2 pozwoliło uzyskać pełną skuteczność klasyfikacji dla wszystkich klas, w tym dla najmniej licznej klasy Ueda.
+
+Zwiększenie dropout do 0.5 pogorszyło wyniki dla klasy Ueda. Pomimo wysokiej dokładności ogólnej 99.33%, model nie rozpoznał żadnej próbki tej klasy, przypisując wszystkie przypadki Ueda do klasy Rucklidge. Oznacza to, że zbyt silna regularizacja ograniczyła zdolność modelu do rozpoznawania mniej reprezentowanych wzorców. Najlepszym kompromisem okazała się wartość dropout = 0.2.
+
+
+
+########################################################3
+
+5. problem klasy Ueda
+
+Confusion matrix na zbiorze TEST:
+[[  0   0   0   0   8]
+ [  0 300   0   0   0]
+ [  0   0 300   0   0]
+ [  0   0   0 282   0]
+ [  0   0   0   0 300]]
+
+Raport klasyfikacji na zbiorze TEST:
+Klasa         Precision     Recall   F1-score    Support
+Ueda             0.0000     0.0000     0.0000          8
+Lorenz           1.0000     1.0000     1.0000        300
+Rosler           1.0000     1.0000     1.0000        300
+Halvorsen        1.0000     1.0000     1.0000        282
+Rucklidge        0.9740     1.0000     0.9868        300
+
+Accuracy test: 99.33%
+
+Podsumowanie:
+Model: CNN 1D
+Seq len: 500
+Stride: 500
+Filtry: 8
+Kernel size: 3
+Dropout: 0.2
+Epoki: 10
+Najlepsza walidacja: 99.49%
+Accuracy test: 99.33%
+Czas uczenia: 1.88 s
+
+
+##################################################################################
+
+Confusion matrix na zbiorze TEST:
+[[  8   0   0   0   0]
+ [  0 300   0   0   0]
+ [  0   0 300   0   0]
+ [  0   0   0 282   0]
+ [  0   0   0   0 300]]
+
+Raport klasyfikacji na zbiorze TEST:
+Klasa         Precision     Recall   F1-score    Support
+Ueda             1.0000     1.0000     1.0000          8
+Lorenz           1.0000     1.0000     1.0000        300
+Rosler           1.0000     1.0000     1.0000        300
+Halvorsen        1.0000     1.0000     1.0000        282
+Rucklidge        1.0000     1.0000     1.0000        300
+
+Accuracy test: 100.00%
+
+Podsumowanie:
+Model: CNN 1D
+Seq len: 500
+Stride: 500
+Filtry: 32
+Kernel size: 5
+Dropout: 0.2
+Epoki: 10
+Najlepsza walidacja: 100.00%
+Accuracy test: 100.00%
+Czas uczenia: 3.84 s
+
+#####################################################################################
+
+Confusion matrix na zbiorze TEST:
+[[  36    0    0    0    0]
+ [   0 1350    0    0    0]
+ [   0    0 1350    0    0]
+ [   0    0    0 1269    0]
+ [   0    0    0    0 1350]]
+
+Raport klasyfikacji na zbiorze TEST:
+Klasa         Precision     Recall   F1-score    Support
+Ueda             1.0000     1.0000     1.0000         36
+Lorenz           1.0000     1.0000     1.0000       1350
+Rosler           1.0000     1.0000     1.0000       1350
+Halvorsen        1.0000     1.0000     1.0000       1269
+Rucklidge        1.0000     1.0000     1.0000       1350
+
+Accuracy test: 100.00%
+
+Podsumowanie:
+Model: CNN 1D
+Seq len: 200
+Stride: 100
+Filtry: 32
+Kernel size: 5
+Dropout: 0.2
+Epoki: 10
+Najlepsza walidacja: 100.00%
+Accuracy test: 100.00%
+Czas uczenia: 10.75 s
+
+################################################################3
+
+
+Confusion matrix na zbiorze TEST:
+[[  76    0    0    0    0]
+ [   0 2850    0    0    0]
+ [   5    0 2845    0    0]
+ [   0    0    0 2679    0]
+ [   0    0    0    0 2850]]
+
+Raport klasyfikacji na zbiorze TEST:
+Klasa         Precision     Recall   F1-score    Support
+Ueda             0.9383     1.0000     0.9682         76
+Lorenz           1.0000     1.0000     1.0000       2850
+Rosler           1.0000     0.9982     0.9991       2850
+Halvorsen        1.0000     1.0000     1.0000       2679
+Rucklidge        1.0000     1.0000     1.0000       2850
+
+Accuracy test: 99.96%
+
+Podsumowanie:
+Model: CNN 1D
+Seq len: 100
+Stride: 50
+Filtry: 32
+Kernel size: 5
+Dropout: 0.2
+Epoki: 10
+Najlepsza walidacja: 99.98%
+Accuracy test: 99.96%
+Czas uczenia: 18.63 s
+
+W eksperymencie dotyczącym klasy Ueda zauważono, że wysoka dokładność ogólna modelu nie zawsze oznacza poprawną klasyfikację wszystkich klas. W wariancie z małą architekturą CNN, tj. filters=8 oraz kernel_size=3, model osiągnął accuracy równą 99.33%, jednak nie rozpoznał żadnej próbki klasy Ueda. Wszystkie próbki tej klasy zostały błędnie przypisane do klasy Rucklidge.
+
+Po zwiększeniu liczby filtrów oraz rozmiaru kernela model zaczął poprawnie rozpoznawać klasę Ueda. Najbardziej stabilne wyniki uzyskano dla segmentów długości 200 próbek z krokiem 100. Taki wariant zapewnił wystarczającą liczbę segmentów dla najmniej licznej klasy, a jednocześnie zachował odpowiednio długi fragment czasowy potrzebny do rozpoznania charakterystycznych cech układu dynamicznego. Wyniki pokazują, że przy niezbalansowanych danych należy analizować nie tylko accuracy, ale również precision, recall, F1-score oraz macierz pomyłek.
