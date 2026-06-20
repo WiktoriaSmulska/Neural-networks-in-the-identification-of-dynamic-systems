@@ -54,7 +54,7 @@ class DynamicSystemLSTM(nn.Module):
 # ---------------------------------------------------------------------------
 # Funkcja trenująca model
 # ---------------------------------------------------------------------------
-def train_model(model, train_loader, test_loader, num_epochs=10, learning_rate=0.001):
+def train_model(model, train_loader, test_loader, num_epochs=10, learning_rate=0.001, seq_len=200):
     """
     Funkcja, która uczy nasz model.
     """
@@ -132,9 +132,10 @@ def train_model(model, train_loader, test_loader, num_epochs=10, learning_rate=0
             best_accuracy = test_accuracy
             # Tworzymy folder 'models' jeśli jeszcze go nie ma
             os.makedirs('models', exist_ok=True)
-            # Zapisujemy najlepszy model na dysk
-            torch.save(model.state_dict(), 'models/best_lstm_model.pth')
-            print("  --> Zapisano nowy, lepszy model na dysku (models/best_lstm_model.pth)!")
+            # Zapisujemy najlepszy model na dysk, dodając długość segmentu do nazwy
+            save_path = f'models/best_lstm_model_seq{seq_len}.pth'
+            torch.save(model.state_dict(), save_path)
+            print(f"  --> Zapisano nowy, lepszy model na dysku ({save_path})!")
         print(f"Epoka [{epoch+1}/{num_epochs}] | "
               f"Strata(Loss): {running_loss/len(train_loader):.4f} | "
               f"Dokładność Treningowa: {train_accuracy:.2f}% | "
@@ -142,34 +143,37 @@ def train_model(model, train_loader, test_loader, num_epochs=10, learning_rate=0
 
     print("=" * 60)
     print(f"Uczenie zakończone! Najlepsza dokładność testowa: {best_accuracy:.2f}%")
-    return model
+    return model, best_accuracy
 
 
-if __name__ == "__main__":
+def run_experiment(seq_len, num_epochs=10, max_files_per_class=None):
+    print(f"\n{'=' * 50}")
+    print(f"ROZPOCZYNAM EKSPERYMENT DLA DŁUGOŚCI SEGMENTU: {seq_len}")
+    print(f"{'=' * 50}")
+    
     # Parametry modelu
     HIDDEN_SIZE = 64     # Ile "neuronów" w pamięci
     NUM_LAYERS = 2       # Ile warstw LSTM
-    NUM_EPOCHS = 10      # Ile pełnych przejść przez dane treningowe
     LEARNING_RATE = 0.001
     
-    # 1. Pobieranie danych z Twojego data_pipeline.py
-    # UWAGA: limituję liczbę plików na klasę do (np. 10), żebyś przy testach 
-    # nie musiał czekać godziny na załadowanie wszystkiego (możesz usunąć `max_files_per_class=10` by puścić całość).
+    # Dla bardzo dużych segmentów (np. 1000) nie robimy nakładania, bierzemy całe pliki.
+    stride = seq_len // 2
+    if seq_len >= 1000:
+        stride = 1000
+    
     print("Ładowanie i przygotowywanie danych...")
     train_loader, test_loader, info = prepare_data(
-        seq_len=200,          # Długość fragmentu czasowego
-        stride=100,           # Krok przesunięcia okna
-        batch_size=64,        # Rozmiar pojedynczej paczki paczki danych
-        # max_files_per_class=10, # Odkomentuj to do szybkich testów!
+        seq_len=seq_len,          
+        stride=stride,           
+        batch_size=64,        
+        max_files_per_class=max_files_per_class, 
         normalize=True,
-        verbose=False         # Żeby nie zaśmiecać konsoli przy każdym włączeniu
+        verbose=False         
     )
     
-    # Pobieramy informacje z przygotowanych danych
     INPUT_SIZE = info['num_features']
     NUM_CLASSES = info['num_classes']
     
-    # 2. Utworzenie instancji naszego modelu LSTM
     print("\nInicjalizacja modelu LSTM...")
     model = DynamicSystemLSTM(
         input_size=INPUT_SIZE,
@@ -178,14 +182,38 @@ if __name__ == "__main__":
         num_classes=NUM_CLASSES
     )
     
-    # 3. Uruchomienie trenowania!
     print("Rozpoczynamy cykl uczący!")
-    trained_model = train_model(
+    trained_model, best_acc = train_model(
         model=model,
         train_loader=train_loader,
         test_loader=test_loader,
-        num_epochs=NUM_EPOCHS,
-        learning_rate=LEARNING_RATE
+        num_epochs=num_epochs,
+        learning_rate=LEARNING_RATE,
+        seq_len=seq_len
     )
     
-    print("Skończyliśmy! Plik z wagami najlepszego modelu to 'models/best_lstm_model.pth'")
+    return best_acc
+
+if __name__ == "__main__":
+    # Testujemy trzy różne długości fragmentu czasowego (dla analizy badawczej)
+    segment_lengths_to_test = [200, 500, 1000]
+    
+    # UWAGA: max_files_per_class=10 by przyspieszyć testowanie w środowisku dev!
+    # Przed oddaniem projektu można ustawić na None, żeby model wczytał całe zbiory danych.
+    MAX_FILES = None 
+    
+    experiment_results = {}
+    
+    for slen in segment_lengths_to_test:
+        best_accuracy = run_experiment(seq_len=slen, num_epochs=10, max_files_per_class=MAX_FILES)
+        experiment_results[slen] = best_accuracy
+        
+    print("\n" + "=" * 50)
+    print("PODSUMOWANIE WYNIKÓW EKSPERYMENTU LSTM:")
+    print("=" * 50)
+    print(f"{'Długość segmentu (seq_len)':<30} | {'Najlepsza dokładność testowa'}")
+    print("-" * 65)
+    for slen, acc in experiment_results.items():
+        print(f"{slen:<30} | {acc:.2f}%")
+    print("=" * 50)
+    print("Eksperymenty zakończone pomyślnie. Pliki wag znajdują się w katalogu 'models/'.")

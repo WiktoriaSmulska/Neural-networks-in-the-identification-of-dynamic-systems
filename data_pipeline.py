@@ -264,6 +264,33 @@ def normalize_data(
 
 
 
+# --- POPRAWKA DODANA PRZEZ TWOJEGO ZNAJOMEGO (AUTORA MODELU LSTM) ---
+# Poprzednie podejście powodowało zjawisko Data Leakage, gdzie segmenty tego samego pliku
+# wpadały zarówno do zbioru treningowego jak i testowego (stąd 100% skuteczności).
+# Zamiast dzielić same wygenerowane segmenty, najpierw dzielimy całe pliki:
+def split_data_files(
+        all_data: Dict[str, List[np.ndarray]],
+        train_ratio: float = DEFAULT_TRAIN_RATIO,
+        seed: int = RANDOM_SEED
+) -> Tuple[Dict[str, List[np.ndarray]], Dict[str, List[np.ndarray]]]:
+    np.random.seed(seed)
+    train_data = {}
+    test_data = {}
+    for class_name, samples in all_data.items():
+        n_samples = len(samples)
+        indices = np.arange(n_samples)
+        np.random.shuffle(indices)
+        n_train = int(n_samples * train_ratio)
+        train_indices = indices[:n_train]
+        test_indices = indices[n_train:]
+        
+        train_data[class_name] = [samples[i] for i in train_indices]
+        test_data[class_name] = [samples[i] for i in test_indices]
+        
+    return train_data, test_data
+# -----------------------------------------------------------------------
+
+
 def split_data(
         X: np.ndarray,
         y: np.ndarray,
@@ -351,17 +378,24 @@ def prepare_data(
         verbose=verbose
     )
 
+    # --- POPRAWKA DODANA PRZEZ TWOJEGO ZNAJOMEGO ---
     if verbose:
-        print(f"\n[2/5] Przetwarzanie danych (seq_len={seq_len})...")
-    X, y = preprocess_all_data(all_data, seq_len=seq_len, stride=stride, verbose=verbose)
+        print(f"\n[2/5] Podział na zbiory (train={train_ratio:.0%}, test={1 - train_ratio:.0%}) na poziomie plików...")
+    train_data, test_data = split_data_files(all_data, train_ratio=train_ratio)
 
     if verbose:
-        print(f"\n[3/5] Podział na zbiory (train={train_ratio:.0%}, test={1 - train_ratio:.0%})...")
-    X_train, X_test, y_train, y_test = split_data(X, y, train_ratio=train_ratio)
+        print(f"\n[3/5] Przetwarzanie danych (seq_len={seq_len})...")
+    
+    if verbose: print("  Przetwarzanie zbioru treningowego:")
+    X_train, y_train = preprocess_all_data(train_data, seq_len=seq_len, stride=stride, verbose=verbose)
+    
+    if verbose: print("  Przetwarzanie zbioru testowego:")
+    X_test, y_test = preprocess_all_data(test_data, seq_len=seq_len, stride=stride, verbose=verbose)
 
     if verbose:
         print(f"  Treningowy: X={X_train.shape}, y={y_train.shape}")
         print(f"  Testowy:    X={X_test.shape}, y={y_test.shape}")
+    # -----------------------------------------------
 
     scaler = None
     if normalize:
