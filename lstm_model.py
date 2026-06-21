@@ -8,7 +8,7 @@ from data_pipeline import prepare_data
 # Zdefiniowanie architektury modelu LSTM
 # ---------------------------------------------------------------------------
 class DynamicSystemLSTM(nn.Module):
-    def __init__(self, input_size, hidden_size, num_layers, num_classes):
+    def __init__(self, input_size, hidden_size, num_layers, num_classes, dropout=0.0):
         """
         Klasa naszego modelu LSTM do rozpoznawania układów dynamicznych.
         
@@ -26,7 +26,13 @@ class DynamicSystemLSTM(nn.Module):
         # 1. Warstwa LSTM
         # batch_first=True jest bardzo ważne, bo nasz DataLoader zwraca dane 
         # w kształcie: (rozmiar_batcha, długość_sekwencji, liczba_cech)
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
+        self.lstm = nn.LSTM(
+            input_size=input_size,
+            hidden_size=hidden_size,
+            num_layers=num_layers,
+            batch_first=True,
+            dropout=dropout if num_layers > 1 else 0.0
+        )
         
         # 2. Warstwa w pełni połączona (tzw. Dense/Linear) 
         # Przerabia to, co LSTM "zrozumiało" (o rozmiarze hidden_size) na 5 naszych klas.
@@ -155,12 +161,16 @@ def run_experiment(seq_len, num_epochs=10, max_files_per_class=None):
     HIDDEN_SIZE = 64     # Ile "neuronów" w pamięci
     NUM_LAYERS = 2       # Ile warstw LSTM
     LEARNING_RATE = 0.001
-    
+    DROPOUT = 0.2
+
     # Dla bardzo dużych segmentów (np. 1000) nie robimy nakładania, bierzemy całe pliki.
     stride = seq_len // 2
     if seq_len >= 1000:
         stride = 1000
     
+    # 1. Pobieranie danych z Twojego data_pipeline.py
+    # UWAGA: limituję liczbę plików na klasę do (np. 10), żebyś przy testach 
+    # nie musiał czekać godziny na załadowanie wszystkiego (możesz usunąć `max_files_per_class=10` by puścić całość).
     print("Ładowanie i przygotowywanie danych...")
     train_loader, test_loader, info = prepare_data(
         seq_len=seq_len,          
@@ -179,7 +189,8 @@ def run_experiment(seq_len, num_epochs=10, max_files_per_class=None):
         input_size=INPUT_SIZE,
         hidden_size=HIDDEN_SIZE,
         num_layers=NUM_LAYERS,
-        num_classes=NUM_CLASSES
+        num_classes=NUM_CLASSES,
+        dropout=DROPOUT
     )
     
     print("Rozpoczynamy cykl uczący!")

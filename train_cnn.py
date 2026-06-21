@@ -4,7 +4,7 @@ import torch.nn as nn
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
 from data_pipeline import prepare_data
-from cnn_model import CNN1DClassifier
+from cnn_model import DynamicSystemCNN
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -42,7 +42,9 @@ def train_one_model(
     seq_len=200,
     epochs=30,
     batch_size=64,
-    lr=0.001
+    lr=0.001,
+    patience=3,
+    min_delta=0.0001
 ):
     train_loader, test_loader, info = prepare_data(
         seq_len=seq_len,
@@ -53,13 +55,12 @@ def train_one_model(
         verbose=True
     )
 
-    model = CNN1DClassifier(
-        input_channels=info["num_features"],
+    model = DynamicSystemCNN(
+        input_size=info["num_features"],
         num_classes=info["num_classes"],
         filters=filters,
         kernel_size=kernel_size,
-        dropout=dropout,
-        use_batch_norm=use_batch_norm
+        dropout=dropout
     ).to(device)
 
     criterion = nn.CrossEntropyLoss()
@@ -68,6 +69,11 @@ def train_one_model(
     train_losses = []
 
     start_time = time.time()
+    best_accuracy = 0.0
+    best_matrix = None
+    best_report = None
+    epochs_without_improvement = 0
+    stopped_epoch = epochs
 
     for epoch in range(epochs):
         model.train()
@@ -90,17 +96,33 @@ def train_one_model(
         avg_loss = running_loss / len(train_loader)
         train_losses.append(avg_loss)
 
-        test_acc, _, _ = evaluate_model(model, test_loader)
+        test_acc, matrix, report = evaluate_model(model, test_loader)
+
+        if test_acc > best_accuracy + min_delta:
+            best_accuracy = test_acc
+            best_matrix = matrix
+            best_report = report
+            epochs_without_improvement = 0
+            torch.save(model.state_dict(), "models/best_cnn_model.pth")
+        else:
+            epochs_without_improvement += 1
 
         print(
             f"Epoch {epoch + 1}/{epochs} | "
             f"Loss: {avg_loss:.4f} | "
             f"Test accuracy: {test_acc:.4f}"
         )
+        
+        if epochs_without_improvement >= patience:
+            stopped_epoch = epoch + 1
+            print(f"Early stopping po epoce {stopped_epoch}")
+            break        
 
     training_time = time.time() - start_time
 
-    accuracy, matrix, report = evaluate_model(model, test_loader)
+    accuracy = best_accuracy
+    matrix = best_matrix
+    report = best_report
 
     print("\n==============================")
     print("WYNIKI KOŃCOWE CNN")
@@ -119,8 +141,6 @@ def train_one_model(
     print("\nConfusion matrix:")
     print(matrix)
 
-    torch.save(model.state_dict(), "models/best_cnn_model.pth")
-
     return {
         "filters": filters,
         "kernel_size": kernel_size,
@@ -129,6 +149,7 @@ def train_one_model(
         "seq_len": seq_len,
         "accuracy": accuracy,
         "training_time": training_time,
+        "stopped_epoch": stopped_epoch,
         "losses": train_losses,
         "confusion_matrix": matrix
     }
@@ -143,5 +164,7 @@ if __name__ == "__main__":
         seq_len=200,
         epochs=30,
         batch_size=64,
-        lr=0.001
+        lr=0.001,
+        patience=3,
+        min_delta=0.0001
     )

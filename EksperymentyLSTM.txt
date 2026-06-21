@@ -1,0 +1,188 @@
+## Eksperymenty LSTM
+
+### 1. Wpływ rozmiaru warstwy ukrytej
+
+Dla konfiguracji bazowej `seq_len=200`, `stride=100`, `num_layers=2`, `dropout=0.0` sprawdzono wpływ parametru `hidden_size`.
+
+#### hidden_size = 16
+
+Confusion matrix na zbiorze TEST:
+
+```text
+[[   0    0    2    0   36]
+ [   0 1800    0    0    0]
+ [   0    0 1800    0    0]
+ [   0    0    0 1592    0]
+ [   0    0    0    0 1800]]
+```
+
+Accuracy test: 99.46%
+Czas uczenia: 32.62 s
+
+Wariant z `hidden_size=16` osiągnął wysoką dokładność ogólną, ale nie rozpoznał klasy Ueda. Próbki tej klasy zostały błędnie przypisane głównie do klasy Rucklidge.
+
+#### hidden_size = 32
+
+Confusion matrix na zbiorze TEST:
+
+```text
+[[  38    0    0    0    0]
+ [   0 1800    0    0    0]
+ [   0    0 1800    0    0]
+ [   0    0    0 1592    0]
+ [   0    0    0    0 1800]]
+```
+
+Accuracy test: 100.00%
+Czas uczenia: 65.29 s
+
+Dla `hidden_size=32` model poprawnie sklasyfikował wszystkie próbki testowe. Był to najlepszy wariant pod względem kompromisu między skutecznością a czasem uczenia.
+
+#### hidden_size = 64
+
+Confusion matrix na zbiorze TEST:
+
+```text
+[[   0    0   38    0    0]
+ [   0 1800    0    0    0]
+ [   0    0 1800    0    0]
+ [   0    0    0 1592    0]
+ [   0    0    0    0 1800]]
+```
+
+Accuracy test: 99.46%
+Czas uczenia: 109.13 s
+
+Zwiększenie `hidden_size` do 64 nie poprawiło wyniku w tym przebiegu eksperymentu. Model ponownie nie rozpoznał klasy Ueda, mimo wysokiej dokładności ogólnej.
+
+#### hidden_size = 128
+
+Confusion matrix na zbiorze TEST:
+
+```text
+[[   0    0   38    0    0]
+ [   0 1800    0    0    0]
+ [   0    0 1800    0    0]
+ [   0    0    0 1592    0]
+ [   0    0    0    0 1800]]
+```
+
+Accuracy test: 99.46%
+Czas uczenia: 322.39 s
+
+Dla `hidden_size=128` czas uczenia znacząco wzrósł, a wynik nie był lepszy od wariantu `hidden_size=32`.
+
+Wniosek: najlepszym wariantem był `hidden_size=32`, ponieważ osiągnął 100% accuracy przy znacznie krótszym czasie uczenia niż większe modele.
+
+---
+
+### 2. Wpływ liczby warstw LSTM
+
+Dla konfiguracji `hidden_size=64`, `seq_len=200`, `stride=100`, `dropout=0.0` sprawdzono wpływ liczby warstw LSTM.
+
+| num_layers | Accuracy | Czas uczenia | Problem            |
+| ---------- | -------: | -----------: | ------------------ |
+| 1          |   99.46% |      73.55 s | Ueda nierozpoznana |
+| 2          |   99.46% |     102.62 s | Ueda nierozpoznana |
+| 3          |   99.46% |     164.52 s | Ueda nierozpoznana |
+
+Zwiększenie liczby warstw nie poprawiło jakości klasyfikacji w tej konfiguracji. Wszystkie warianty osiągnęły podobną dokładność ogólną, ale nie rozpoznały klasy Ueda. Dodatkowe warstwy zwiększyły czas uczenia, dlatego nie były korzystne.
+
+---
+
+### 3. Wpływ długości segmentu czasowego
+
+Dla konfiguracji `hidden_size=64`, `num_layers=2`, `dropout=0.0` sprawdzono wpływ długości segmentu `seq_len` oraz kroku `stride`.
+
+#### seq_len = 100, stride = 50
+
+Confusion matrix na zbiorze TEST:
+
+```text
+[[  80    0    0    0    0]
+ [   0 3800    0    0    0]
+ [   1    0 3799    0    0]
+ [   0    0    0 3360    0]
+ [   0    0    0    0 3800]]
+```
+
+Accuracy test: 99.99%
+Czas uczenia: 310.58 s
+
+Krótszy segment zwiększył liczbę próbek testowych, szczególnie dla klasy Ueda. Model rozpoznał klasę Ueda poprawnie, ale czas uczenia był bardzo długi.
+
+#### seq_len = 200, stride = 100
+
+Confusion matrix na zbiorze TEST:
+
+```text
+[[   0    0   38    0    0]
+ [   0 1800    0    0    0]
+ [   0    0 1800    0    0]
+ [   0    0    0 1592    0]
+ [   0    0    0    0 1800]]
+```
+
+Accuracy test: 99.46%
+Czas uczenia: 116.29 s
+
+Dla `seq_len=200` model osiągnął wysoką dokładność ogólną, ale nie rozpoznał klasy Ueda.
+
+#### seq_len = 500, stride = 250
+
+Confusion matrix na zbiorze TEST:
+
+```text
+[[  0   0  13   0   0]
+ [  0 600   0   0   0]
+ [  0   0 600   0   0]
+ [  0   0   0 531   0]
+ [  0   0   0   0 600]]
+```
+
+Accuracy test: 99.45%
+Czas uczenia: 95.86 s
+
+Dłuższy segment zmniejszył liczbę próbek testowych, szczególnie dla klasy Ueda. Model ponownie nie rozpoznał tej klasy.
+
+Wniosek: krótsze segmenty poprawiają reprezentację klasy Ueda, ale zwiększają czas uczenia. Segment `seq_len=200` jest kompromisem, jednak najlepszy wynik końcowy dla LSTM uzyskano przy `hidden_size=32`.
+
+---
+
+### 4. Wpływ dropout
+
+Dla konfiguracji `hidden_size=64`, `num_layers=2`, `seq_len=200`, `stride=100` sprawdzono wpływ wartości `dropout`.
+
+| dropout | Accuracy | Czas uczenia | Problem            |
+| ------- | -------: | -----------: | ------------------ |
+| 0.0     |   99.46% |     107.96 s | Ueda nierozpoznana |
+| 0.2     |   99.46% |     130.26 s | Ueda nierozpoznana |
+| 0.5     |  100.00% |     326.63 s | brak błędów        |
+
+Dla `dropout=0.5` model uzyskał 100% accuracy, ale czas uczenia był zdecydowanie najdłuższy. Wariant ten poprawił klasyfikację, lecz był mniej efektywny czasowo.
+
+---
+
+### 5. Wybór najlepszego modelu LSTM
+
+Najlepszy model LSTM:
+
+* `hidden_size = 32`
+* `num_layers = 2`
+* `dropout = 0.0`
+* `seq_len = 200`
+* `stride = 100`
+* `accuracy = 100.00%`
+* `czas uczenia = 65.29 s`
+
+Confusion matrix najlepszego modelu:
+
+```text
+[[  38    0    0    0    0]
+ [   0 1800    0    0    0]
+ [   0    0 1800    0    0]
+ [   0    0    0 1592    0]
+ [   0    0    0    0 1800]]
+```
+
+Najlepszy model LSTM poprawnie sklasyfikował wszystkie próbki testowe. Macierz pomyłek zawiera wartości tylko na przekątnej, co oznacza brak błędów między klasami. W porównaniu z CNN model LSTM również osiągnął pełną skuteczność, ale wymagał dłuższego czasu uczenia.
